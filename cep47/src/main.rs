@@ -13,7 +13,7 @@ use casper_types::{
     runtime_args, CLType, CLTyped, Key, Group, Parameter, CLValue, ContractPackageHash, EntryPoint, EntryPointAccess,
     EntryPointType, EntryPoints, RuntimeArgs, URef, U256,
 };
-use cep47::{CEP20STK};
+use cep47::cep47::{CEP20STK};
 use contract_utils::{ContractContext, OnChainContractStorage};
 
 #[derive(Default)]
@@ -136,7 +136,7 @@ casper-client put-deploy \
   --chain-name casper-test \
   --node-address http://159.65.118.250:7777 \
   --secret-key ./keys/secret_key.pem \
-  --session-path ./target/wasm32-unknown-unknown/release/cep47-token.wasm \
+  --session-path ./target/wasm32-unknown-unknown/release/cep47.wasm \
   --payment-amount 80000000000 \
   --session-arg "name:string='FerrumX'" \
   --session-arg "address:string='hash-7e3f01576650a939a96c2caa6dcc19df8d2ef1882e4b6603a375234e22e07e4f'" \
@@ -187,11 +187,11 @@ casper-client put-deploy \
         .unwrap_or_revert();
 
     runtime::put_key(
-        &format!("{}_contract_hash", contract_name),
+        &format!("{}_contract_hash", contract_hash),
         contract_hash.into(),
     );
     runtime::put_key(
-        &format!("{}_contract_hash_wrapped", contract_name),
+        &format!("{}_contract_hash_wrapped", contract_hash),
         storage::new_uref(contract_hash).into(),
     );
 }

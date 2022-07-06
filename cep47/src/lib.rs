@@ -1,7 +1,7 @@
 #![no_std]
 extern crate alloc;
 
-mod cep47;
+pub mod cep47;
 pub mod data;
 pub mod event;
 pub mod detail;
