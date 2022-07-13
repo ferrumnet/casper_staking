@@ -1,3 +1,5 @@
+use crate::detail;
+use crate::event::CEP47Event;
 use alloc::{
     collections::BTreeMap,
     string::{String, ToString},
@@ -9,8 +11,6 @@ use casper_contract::{
 };
 use casper_types::{system::CallStackElement, ContractPackageHash, Key, URef, U256};
 use contract_utils::{get_key, key_to_str, set_key, Dict};
-use crate::detail;
-use crate::{event::CEP47Event};
 
 const STAKERS_DICT: &str = "stakers";
 const AMOUNT_STAKED_BY_ADDRESS_DICT: &str = "amount_staked_by_addresses_dict";
@@ -23,10 +23,11 @@ pub const STAKING_ENDS: &str = "staking_ends";
 pub const WITHDRAW_STARTS: &str = "withdraw_starts";
 pub const WITHDRAW_ENDS: &str = "withdraw_ends";
 pub const STAKING_TOTAL: &str = "staking_total";
-
-
-
-
+pub const STAKE_BALANCE: &str = "stake_balance";
+pub const TOTAL_REWARD: &str = "total_reward";
+pub const EARLY_WITHDRAW_REWARD: &str = "early_withdraw_reward";
+pub const REWARD_BALANCE: &str = "reward_balance";
+pub const STAKED_BALANCE: &str = "staked_balance";
 
 pub struct StakedTokens {
     addresses_staked_dict: Dict,
@@ -47,19 +48,18 @@ impl StakedTokens {
         self.addresses_staked_dict.get(&key_to_str(address))
     }
 
-
     pub fn add_stake(&self, owner: &Key, amount: &U256) {
         let staked_amount = self.get_amount_staked_by_address(owner).unwrap();
         let new_amount = staked_amount + amount;
         self.addresses_staked_dict
-            .set(&key_to_str(owner),new_amount);
+            .set(&key_to_str(owner), new_amount);
     }
 
     pub fn withdraw_stake(&self, owner: &Key, amount: &U256) {
         let staked_amount = self.get_amount_staked_by_address(owner).unwrap();
         let new_amount = staked_amount - amount;
         self.addresses_staked_dict
-            .set(&key_to_str(owner),new_amount);
+            .set(&key_to_str(owner), new_amount);
     }
 }
 
@@ -119,6 +119,46 @@ pub fn set_staking_total(staking_total: U256) {
     set_key(STAKING_TOTAL, staking_total);
 }
 
+pub fn stake_balance() -> u64 {
+    get_key(STAKED_BALANCE).unwrap_or_default()
+}
+
+pub fn set_stake_balance(stake_balance: u64) {
+    set_key(STAKED_BALANCE, stake_balance);
+}
+
+pub fn total_reward() -> U256 {
+    get_key(TOTAL_REWARD).unwrap_or_default()
+}
+
+pub fn set_total_reward(total_reward: U256) {
+    set_key(TOTAL_REWARD, total_reward);
+}
+
+pub fn early_withdraw_reward() -> U256 {
+    get_key(EARLY_WITHDRAW_REWARD).unwrap_or_default()
+}
+
+pub fn set_early_withdraw_reward(early_withdraw_reward: U256) {
+    set_key(EARLY_WITHDRAW_REWARD, early_withdraw_reward);
+}
+
+pub fn reward_balance() -> U256 {
+    get_key(REWARD_BALANCE).unwrap_or_default()
+}
+
+pub fn set_reward_balance(reward_balance: U256) {
+    set_key(REWARD_BALANCE, reward_balance);
+}
+
+pub fn staked_balance() -> U256 {
+    get_key(STAKED_BALANCE).unwrap_or_default()
+}
+
+pub fn set_staked_balance(staked_balance: U256) {
+    set_key(STAKED_BALANCE, staked_balance);
+}
+
 pub fn contract_package_hash() -> ContractPackageHash {
     let call_stacks = get_call_stack();
     let last_entry = call_stacks.last().unwrap_or_revert();
@@ -136,35 +176,40 @@ pub fn emit(event: &CEP47Event) {
     let mut events = Vec::new();
     let package = contract_package_hash();
     match event {
-        CEP47Event::Stake {
-            amount
-        } => {
-                let mut param = BTreeMap::new();
-                param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
-                param.insert("event_type", "stake".to_string());
-                param.insert("staker",Key::from(detail::get_immediate_caller_address().ok().unwrap()).to_formatted_string());
-                param.insert("stake_amount", amount.to_string());
-                events.push(param);
+        CEP47Event::Stake { amount } => {
+            let mut param = BTreeMap::new();
+            param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
+            param.insert("event_type", "stake".to_string());
+            param.insert(
+                "staker",
+                Key::from(detail::get_immediate_caller_address().ok().unwrap())
+                    .to_formatted_string(),
+            );
+            param.insert("stake_amount", amount.to_string());
+            events.push(param);
         }
-        CEP47Event::Withdraw { amount} => {
-                let mut param = BTreeMap::new();
-                param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
-                param.insert("event_type", "withdraw".to_string());
-                param.insert("staker", Key::from(detail::get_immediate_caller_address().ok().unwrap()).to_formatted_string());
-                param.insert("withdrawn_amount", amount.to_string());
-                events.push(param);
-            
+        CEP47Event::Withdraw { amount } => {
+            let mut param = BTreeMap::new();
+            param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
+            param.insert("event_type", "withdraw".to_string());
+            param.insert(
+                "staker",
+                Key::from(detail::get_immediate_caller_address().ok().unwrap())
+                    .to_formatted_string(),
+            );
+            param.insert("withdrawn_amount", amount.to_string());
+            events.push(param);
         }
         CEP47Event::AddReward {
             reward_amount,
-            withdrawable_amount
+            withdrawable_amount,
         } => {
-                let mut param = BTreeMap::new();
-                param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
-                param.insert("event_type", "add_reward".to_string());
-                param.insert("reward_amount", reward_amount.to_string());
-                param.insert("withdrawable_amount", withdrawable_amount.to_string());
-                events.push(param);
+            let mut param = BTreeMap::new();
+            param.insert(CONTRACT_PACKAGE_HASH, package.to_string());
+            param.insert("event_type", "add_reward".to_string());
+            param.insert("reward_amount", reward_amount.to_string());
+            param.insert("withdrawable_amount", withdrawable_amount.to_string());
+            events.push(param);
         }
     };
     for param in events {

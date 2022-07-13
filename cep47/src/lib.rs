@@ -1,12 +1,12 @@
 #![no_std]
 extern crate alloc;
 
+pub mod address;
 pub mod cep47;
 pub mod data;
-pub mod event;
 pub mod detail;
-pub mod address;
-
+pub mod event;
+pub mod modifiers;
 
 pub use cep47::{Error, CEP20STK};
 pub use contract_utils;
