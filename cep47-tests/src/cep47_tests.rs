@@ -31,32 +31,26 @@ fn test_stake() {
     let (env, contract, owner) = deploy();
     let user = env.next_user();
 
-    // let res = contract.stake(owner, U256::from(1i64));
-
-    // print!("{}", res);
-
-    // assert_eq!(contract.total_supply(), U256::from(1));
+    let res = contract.stake(owner, U256::from(1i64));
 }
 
-// #[test]
-// fn test_withdraw() {
-//     let (env, contract, owner) = deploy();
-//     let user = env.next_user();
+#[test]
+fn test_withdraw() {
+    let (env, contract, owner) = deploy();
+    let user = env.next_user();
 
-//     contract.stake(owner, U256::from(10i64));
-//     contract.withdraw(owner, U256::from(1i64));
-//     // assert_eq!(token.total_supply(), U256::from(1));
-//     // assert_eq!(token.balance_of(Key::Account(user)), U256::from(1));
-// }
+    // contract.stake(owner, U256::from(10i64));
+    contract.withdraw(owner, U256::from(1i64));
+    // assert_eq!(token.total_supply(), U256::from(1));
+    // assert_eq!(token.balance_of(Key::Account(user)), U256::from(1));
+}
 
-// #[test]
-// fn test_add_reward() {
-//     let (env, contract, owner) = deploy();
-//     let user = env.next_user();
+#[test]
+fn test_add_reward() {
+    let (env, contract, owner) = deploy();
+    let user = env.next_user();
 
-//     // token.mint_many(owner, user, token_ids.clone(), token_metas);
-
-//     // token.burn_one(user, user, token_ids[0]);
-//     // assert_eq!(token.total_supply(), U256::from(1));
-//     // assert_eq!(token.balance_of(Key::Account(user)), U256::from(1));
-// }
+    contract.add_reward(owner, U256::from(1i64), U256::from(1i64));
+    // assert_eq!(token.total_supply(), U256::from(1));
+    // assert_eq!(token.balance_of(Key::Account(user)), U256::from(1));
+}

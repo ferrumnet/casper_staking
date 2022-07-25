@@ -29,7 +29,7 @@ impl CEP47Instance {
     ) -> CEP47Instance {
         CEP47Instance(TestContract::new(
             env,
-            "/Users/rostyslav.tyshko/work/ferrum-work/forks/casper_staking/cep47/target/wasm32-unknown-unknown/debug/cep47.wasm",
+            "/home/ubuntu/forks/casper_staking/cep47/target/wasm32-unknown-unknown/release/cep47.wasm",
             contract_name,
             sender,
             runtime_args! {

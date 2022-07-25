@@ -11,7 +11,7 @@ pub fn positive(amount: U256) -> Result<(), Error> {
 }
 
 pub fn after(event_time: u64) -> Result<(), Error> {
-    if runtime::get_blocktime() >= BlockTime::new(event_time) {
+    if runtime::get_blocktime() < BlockTime::new(event_time) {
         Err(Error::BadTiming)
     } else {
         Ok(())
@@ -19,7 +19,7 @@ pub fn after(event_time: u64) -> Result<(), Error> {
 }
 
 pub fn before(event_time: u64) -> Result<(), Error> {
-    if runtime::get_blocktime() < BlockTime::new(event_time) {
+    if runtime::get_blocktime() >= BlockTime::new(event_time) {
         Err(Error::BadTiming)
     } else {
         Ok(())

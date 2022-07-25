@@ -117,6 +117,14 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
         data::set_early_withdraw_reward(early_withdraw_reward)
     }
 
+    fn staked_total(&self) -> U256 {
+        data::staked_total()
+    }
+
+    fn set_staked_total(&self, staked_total: U256) {
+        data::set_staked_total(staked_total)
+    }
+
     fn amount_staked(&self, staker: Key) -> U256 {
         StakedTokens::instance()
             .get_amount_staked_by_address(&staker)
@@ -124,9 +132,12 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
     }
 
     fn stake(&mut self, amount: U256) -> Result<U256, Error> {
-        modifiers::positive(amount)?;
-        modifiers::after(self.staking_starts())?;
-        modifiers::before(self.staking_ends())?;
+        // modifiers::positive(amount)?;
+        // modifiers::after(self.staking_starts())?;
+        // modifiers::before(self.staking_ends())?;
+
+
+        let token_address = self.address();
         
         let stakers_dict = StakedTokens::instance();
         let stacker_addr = detail::get_immediate_caller_address()?;
@@ -141,7 +152,7 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
             return Err(Error::NotRequiredStake);
         }
 
-        if (remaining_token + self.staking_total()) > self.staking_total() {
+        if (remaining_token + self.staked_total()) > self.staking_total() {
             return Err(Error::NotRequiredStake);
         }
 
@@ -164,13 +175,13 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
 
     fn withdraw(&mut self, amount: U256) -> Result<U256, Error> {
         modifiers::positive(amount)?;
-        modifiers::after(self.staking_starts())?;
+        // modifiers::after(self.staking_starts())?;
         
         let stakers_dict = StakedTokens::instance();
         let caller_address = detail::get_immediate_caller_address()?;
 
         if amount
-            < stakers_dict
+            > stakers_dict
                 .get_amount_staked_by_address(&Key::from(caller_address))
                 .unwrap()
         {
@@ -218,7 +229,7 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
         reward_amount: U256,
         withdrawable_amount: U256,
     ) -> Result<U256, Error> {
-        modifiers::before(self.staking_ends())?;
+        // modifiers::before(self.staking_ends())?;
 
         if reward_amount <= U256::from(0u64) {
             return Err(Error::NegativeReward);
@@ -243,7 +254,7 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
     }
 
     fn pay_direct(&self, recipient: Address, amount: U256) -> Result<(), Error> {
-        modifiers::positive(amount)?;
+        // modifiers::positive(amount)?;
         let (contract_hash, _) = self.contract_metadata();
 
         let args = runtime_args! {
@@ -255,6 +266,8 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
     }
 
     fn pay_to(&self, allower: Address, recipient: Address, amount: U256) {
+        self.approve(allower, amount);
+
         let (contract_hash, _) = self.contract_metadata();
         let args = runtime_args! {
             "owner" => allower,
@@ -273,21 +286,35 @@ pub trait CEP20STK<Storage: ContractStorage>: ContractContext<Storage> {
         )
     }
 
+    fn approve(&self, spender: Address, amount: U256) {
+        let (contract_hash, _) = self.contract_metadata();
+        let args = runtime_args! {
+            "spender" => spender,
+            "amount" => amount
+        };
+        runtime::call_contract::<String>(contract_hash, "approve", args);
+    }
+
     fn emit(&mut self, event: CEP47Event) {
         data::emit(&event);
     }
 
     fn contract_metadata(&self) -> (ContractHash, ContractPackageHash) {
         let lower_contracthash =
-            "contract-c9a9e704604260416bf908cb6274e5d765b36164cf1fb9597a0df67ec4063bfa"
+            "contract-79e3067be4acae4b44a9a894c34b3c053ebad2f2d8996d2ae0bc5775f1ec2d66"
                 .to_lowercase();
         let contract_hash = ContractHash::from_formatted_str(&lower_contracthash).unwrap();
 
         let lower_contractpackagehash =
-            "hash-wasmc4929e7fcb71772c1cb39ebb702a70d036b0ad4f9caf420d3fd377f749dfdb17"
+            "hash-wasmcb262b05c2b36270724afebd0a25a5aa0f95e0efba76558ca4cc2edfb8bd2e58"
                 .to_lowercase();
         let contract_package_hash =
             ContractPackageHash::from_formatted_str(&lower_contractpackagehash).unwrap();
         (contract_hash, contract_package_hash)
+    }
+
+    fn approve1(&mut self, spender: Key) -> Result<(), Error> {
+        let caller = self.get_caller();
+        Ok(())
     }
 }

@@ -50,6 +50,11 @@ impl Token {
     }
 }
 
+
+#[no_mangle]
+fn approve() {
+}
+
 #[no_mangle]
 fn constructor() {
     let name = runtime::get_named_arg::<String>("name");
@@ -161,18 +166,61 @@ fn call() {
     casper-client put-deploy \
       --chain-name casper-test \
       --node-address http://159.65.118.250:7777 \
-      --secret-key ./keys/secret_key.pem \
-      --session-path ./target/wasm32-unknown-unknown/release/cep47.wasm \
-      --payment-amount 80000000000 \
+      --secret-key ./cep47/keys/secret_key.pem \
+      --session-path ./cep47/target/wasm32-unknown-unknown/release/cep47.wasm \
+      --payment-amount 200000000000 \
       --session-arg "name:string='FerrumX'" \
-      --session-arg "address:string='hash-7e3f01576650a939a96c2caa6dcc19df8d2ef1882e4b6603a375234e22e07e4f'" \
-      --session-arg "staking_starts:u64='1653993649'" \
-      --session-arg "staking_ends:u64='1653994249'" \
-      --session-arg "withdraw_starts:u64='1653994549'" \
-      --session-arg "withdraw_ends:u64='1653994249'" \
+      --session-arg "address:string='9e7283533626d0c7d43fa9ca745af20d8dac7fc3bfe03cdfe50d523a2a0f498d'" \
+      --session-arg "staking_starts:u64='0'" \
+      --session-arg "staking_ends:u64='1755994649'" \
+      --session-arg "withdraw_starts:u64='0'" \
+      --session-arg "withdraw_ends:u64='1755994649'" \
       --session-arg "staking_total:U256='500000'"
 
         */
+/*
+        casper-client put-deploy \
+        --chain-name casper-test \
+        --node-address http://159.65.118.250:7777 \
+        --secret-key cep47/keys/secret_key.pem \
+        --payment-amount 4000000000 \
+        --session-hash 28fdc514d76a3f39bac9cf6a84ff81b586a06374a40d90838d9f44a9f4e5a179 \
+        --session-entry-point "stake" \
+        --session-arg "amount:u256='20'"
+  */
+
+
+/*
+        casper-client put-deploy \
+        --chain-name casper-test \
+        --node-address http://159.65.118.250:7777 \
+        --secret-key cep47/keys/secret_key.pem \
+        --payment-amount 4000000000 \
+        --session-hash 28fdc514d76a3f39bac9cf6a84ff81b586a06374a40d90838d9f44a9f4e5a179 \
+        --session-entry-point "withdraw" \
+        --session-arg "amount:u256='10'"
+  */
+
+
+  /*
+        casper-client put-deploy \
+        --chain-name casper-test \
+        --node-address http://159.65.118.250:7777 \
+        --secret-key cep47/keys/secret_key.pem \
+        --payment-amount 4000000000 \
+        --session-hash 3b67aef4633a84feaa6a3e4a6090ae76cc304c948fc92de09356ba114474c3de \
+        --session-entry-point "add_reward" \
+        --session-arg "reward_amount:u256='20'" \
+        --session-arg "withdrawable_amount:u256='19'"
+  */
+
+  /*
+  casper-client get-deploy \
+      --id 2 \
+      --node-address http://159.65.118.250:7777 \
+      ee07324ad466aad373e94f787b3dbf1ba1ff00175e97a0bce002bb45737ad5e6
+  
+  */
 
     // Prepare constructor args
     let constructor_args = runtime_args! {
@@ -304,6 +352,34 @@ fn get_entry_points() -> EntryPoints {
         vec![
             Parameter::new("reward_amount", Key::cl_type()),
             Parameter::new("withdrawable_amount", Key::cl_type()),
+        ],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    // entry_points.add_entry_point(EntryPoint::new(
+    //     "transfer",
+    //     vec![
+    //         Parameter::new("recipient", Key::cl_type()),
+    //     ],
+    //     <()>::cl_type(),
+    //     EntryPointAccess::Public,
+    //     EntryPointType::Contract,
+    // ));
+    // entry_points.add_entry_point(EntryPoint::new(
+    //     "transfer_from",
+    //     vec![
+    //         Parameter::new("sender", Key::cl_type()),
+    //         Parameter::new("recipient", Key::cl_type()),
+    //     ],
+    //     <()>::cl_type(),
+    //     EntryPointAccess::Public,
+    //     EntryPointType::Contract,
+    // ));
+    entry_points.add_entry_point(EntryPoint::new(
+        "approve",
+        vec![
+            Parameter::new("spender", Key::cl_type()),
         ],
         <()>::cl_type(),
         EntryPointAccess::Public,

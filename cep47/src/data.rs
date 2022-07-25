@@ -26,6 +26,7 @@ pub const STAKING_TOTAL: &str = "staking_total";
 pub const STAKE_BALANCE: &str = "stake_balance";
 pub const TOTAL_REWARD: &str = "total_reward";
 pub const EARLY_WITHDRAW_REWARD: &str = "early_withdraw_reward";
+pub const STAKED_TOTAL: &str = "staked_total";
 pub const REWARD_BALANCE: &str = "reward_balance";
 pub const STAKED_BALANCE: &str = "staked_balance";
 
@@ -49,8 +50,11 @@ impl StakedTokens {
     }
 
     pub fn add_stake(&self, owner: &Key, amount: &U256) {
-        let staked_amount = self.get_amount_staked_by_address(owner).unwrap();
-        let new_amount = staked_amount + amount;
+        let new_amount = if let Some(staked_amount) = self.get_amount_staked_by_address(owner) {
+            staked_amount + amount
+        } else {
+            *amount
+        };
         self.addresses_staked_dict
             .set(&key_to_str(owner), new_amount);
     }
@@ -141,6 +145,14 @@ pub fn early_withdraw_reward() -> U256 {
 
 pub fn set_early_withdraw_reward(early_withdraw_reward: U256) {
     set_key(EARLY_WITHDRAW_REWARD, early_withdraw_reward);
+}
+
+pub fn staked_total() -> U256 {
+    get_key(STAKED_TOTAL).unwrap_or_default()
+}
+
+pub fn set_staked_total(staked_total: U256) {
+    set_key(STAKED_TOTAL, staked_total);
 }
 
 pub fn reward_balance() -> U256 {
