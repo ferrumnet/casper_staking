@@ -1,6 +1,4 @@
-
 use casper_types::U256;
-
 
 pub enum CEP47Event {
     Stake {
@@ -11,7 +9,6 @@ pub enum CEP47Event {
     },
     AddReward {
         reward_amount: U256,
-        withdrawable_amount: U256
-    }
-
+        withdrawable_amount: U256,
+    },
 }

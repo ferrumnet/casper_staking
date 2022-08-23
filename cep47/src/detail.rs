@@ -7,8 +7,8 @@ use casper_contract::{
 };
 use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef};
 
-use crate::{Error};
 use crate::address::Address;
+use crate::Error;
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {

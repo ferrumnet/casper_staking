@@ -19,223 +19,110 @@ impl CEP47Instance {
         env: &TestEnv,
         contract_name: &str,
         sender: AccountHash,
-        name: &str,
-        symbol: &str,
-        meta: Meta,
+        name: String,
+        address: String,
+        staking_starts: u64,
+        staking_ends: u64,
+        withdraw_starts: u64,
+        withdraw_ends: u64,
+        staking_total: U256,
     ) -> CEP47Instance {
         CEP47Instance(TestContract::new(
             env,
-            "cep47-token.wasm",
+            "/home/ubuntu/forks/casper_staking/cep47/target/wasm32-unknown-unknown/release/cep47.wasm",
             contract_name,
             sender,
             runtime_args! {
                 "name" => name,
-                "symbol" => symbol,
-                "meta" => meta
+                "address" => address,
+                "staking_starts" => staking_starts,
+                "staking_ends" => staking_ends,
+                "withdraw_starts" => withdraw_starts,
+                "withdraw_ends" => withdraw_ends,
+                "staking_total" => staking_total,
             },
         ))
     }
 
-    pub fn constructor(&self, sender: AccountHash, name: &str, symbol: &str, meta: Meta) {
+    pub fn constructor(
+        &self,
+        sender: AccountHash,
+        name: String,
+        address: String,
+        staking_starts: u64,
+        staking_ends: u64,
+        withdraw_starts: u64,
+        withdraw_ends: u64,
+        staking_total: U256,
+    ) {
         self.0.call_contract(
             sender,
             "constructor",
             runtime_args! {
-            "name" => name,
-            "symbol" => symbol,
-            "meta" => meta},
+                "name" => name,
+                "address" => address,
+                "staking_starts" => staking_starts,
+                "staking_ends" => staking_ends,
+                "withdraw_starts" => withdraw_starts,
+                "withdraw_ends" => withdraw_ends,
+                "staking_total" => staking_total,
+            },
         );
     }
 
-    pub fn mint_one<T: Into<Key>>(
-        &self,
-        sender: AccountHash,
-        recipient: T,
-        token_id: TokenId,
-        token_meta: Meta,
-    ) {
+    pub fn withdraw(&self, sender: AccountHash, amount: U256) {
         self.0.call_contract(
             sender,
-            "mint",
+            "withdraw",
             runtime_args! {
-                "recipient" => recipient.into(),
-                "token_ids" => vec![token_id],
-                "token_metas" => vec![token_meta]
+                "amount" => amount,
             },
         )
     }
 
-    pub fn mint_copies<T: Into<Key>>(
-        &self,
-        sender: AccountHash,
-        recipient: T,
-        token_ids: Vec<TokenId>,
-        token_meta: Meta,
-        count: u32,
-    ) {
+    pub fn stake(&self, sender: AccountHash, amount: U256) {
         self.0.call_contract(
             sender,
-            "mint_copies",
+            "stake",
             runtime_args! {
-                "recipient" => recipient.into(),
-                "token_ids" => token_ids,
-                "token_meta" => token_meta,
-                "count" => count
+                "amount" => amount,
             },
         )
     }
 
-    pub fn mint_many<T: Into<Key>>(
-        &self,
-        sender: AccountHash,
-        recipient: T,
-        token_ids: Vec<TokenId>,
-        token_metas: Vec<Meta>,
-    ) {
+    pub fn add_reward(&self, sender: AccountHash, reward_amount: U256, withdrawable_amount: U256) {
         self.0.call_contract(
             sender,
-            "mint",
+            "add_reward",
             runtime_args! {
-                "recipient" => recipient.into(),
-                "token_ids" => token_ids,
-                "token_metas" => token_metas
+                "reward_amount" => reward_amount,
+                "withdrawable_amount" => withdrawable_amount,
             },
         )
     }
 
-    pub fn burn_one<T: Into<Key>>(&self, sender: AccountHash, owner: T, token_id: TokenId) {
-        self.0.call_contract(
-            sender,
-            "burn",
-            runtime_args! {
-                "owner" => owner.into(),
-                "token_ids" => vec![token_id]
-            },
-        )
-    }
-
-    pub fn burn_many<T: Into<Key>>(&self, sender: AccountHash, owner: T, token_ids: Vec<TokenId>) {
-        self.0.call_contract(
-            sender,
-            "burn",
-            runtime_args! {
-                "owner" => owner.into(),
-                "token_ids" => token_ids
-            },
-        )
-    }
-
-    pub fn transfer<T: Into<Key>>(
-        &self,
-        sender: AccountHash,
-        recipient: T,
-        token_ids: Vec<TokenId>,
-    ) {
-        self.0.call_contract(
-            sender,
-            "transfer",
-            runtime_args! {
-                "recipient" => recipient.into(),
-                "token_ids" => token_ids
-            },
-        )
-    }
-
-    pub fn transfer_from<T: Into<Key>>(
-        &self,
-        sender: AccountHash,
-        owner: T,
-        recipient: T,
-        token_ids: Vec<TokenId>,
-    ) {
-        self.0.call_contract(
-            sender,
-            "transfer_from",
-            runtime_args! {
-                "sender" => owner.into(),
-                "recipient" => recipient.into(),
-                "token_ids" => token_ids
-            },
-        )
-    }
-
-    pub fn approve<T: Into<Key>>(&self, sender: AccountHash, spender: T, token_ids: Vec<TokenId>) {
-        self.0.call_contract(
-            sender,
-            "approve",
-            runtime_args! {"spender" => spender.into(), "token_ids" => token_ids},
-        )
-    }
-
-    pub fn get_approved<T: Into<Key>>(&self, owner: T, token_id: TokenId) -> Option<Key> {
-        self.0.query_dictionary(
-            "allowances",
-            key_and_value_to_str::<String>(&owner.into(), &token_id.to_string()),
-        )
-    }
-
-    pub fn update_token_meta(&self, sender: AccountHash, token_id: TokenId, token_meta: Meta) {
-        self.0.call_contract(
-            sender,
-            "update_token_meta",
-            runtime_args! {
-                "token_id" => token_id,
-                "token_meta" => token_meta
-            },
-        )
-    }
-
-    pub fn get_token_by_index<T: Into<Key>>(&self, account: T, index: U256) -> Option<TokenId> {
-        self.0.query_dictionary(
-            "owned_tokens_by_index",
-            key_and_value_to_str(&account.into(), &index),
-        )
-    }
-
-    pub fn balance_of<T: Into<Key>>(&self, account: T) -> U256 {
+    pub fn total_reward<T: Into<Key>>(&self, sender: AccountHash) {
         self.0
-            .query_dictionary("balances", key_to_str(&account.into()))
-            .unwrap_or_default()
+            .call_contract(sender, "total_reward", runtime_args! {})
     }
 
-    pub fn owner_of(&self, token_id: TokenId) -> Option<Key> {
-        self.0.query_dictionary("owners", token_id.to_string())
+    pub fn reward_balance<T: Into<Key>>(&self, sender: AccountHash) {
+        self.0
+            .call_contract(sender, "reward_balance", runtime_args! {})
     }
 
-    pub fn token_meta(&self, token_id: TokenId) -> Option<Meta> {
-        self.0.query_dictionary("metadata", token_id.to_string())
+    pub fn early_withdraw_reward<T: Into<Key>>(&self, sender: AccountHash) {
+        self.0
+            .call_contract(sender, "early_withdraw_reward", runtime_args! {})
     }
 
-    pub fn name(&self) -> String {
-        self.0.query_named_key(String::from("name"))
+    pub fn staking_total<T: Into<Key>>(&self, sender: AccountHash) {
+        self.0
+            .call_contract(sender, "staking_total", runtime_args! {})
     }
 
-    pub fn symbol(&self) -> String {
-        self.0.query_named_key(String::from("symbol"))
+    pub fn staked_balance<T: Into<Key>>(&self, sender: AccountHash) {
+        self.0
+            .call_contract(sender, "staked_balance", runtime_args! {})
     }
-
-    pub fn total_supply(&self) -> U256 {
-        self.0.query_named_key(String::from("total_supply"))
-    }
-
-    pub fn meta(&self) -> Meta {
-        self.0.query_named_key(String::from("meta"))
-    }
-}
-
-pub fn key_to_str(key: &Key) -> String {
-    match key {
-        Key::Account(account) => account.to_string(),
-        Key::Hash(package) => hex::encode(package),
-        _ => panic!("Unexpected key type"),
-    }
-}
-
-pub fn key_and_value_to_str<T: CLTyped + ToBytes>(key: &Key, value: &T) -> String {
-    let mut hasher = VarBlake2b::new(32).unwrap();
-    hasher.update(key.to_bytes().unwrap());
-    hasher.update(value.to_bytes().unwrap());
-    let mut ret = [0u8; 32];
-    hasher.finalize_variable(|hash| ret.clone_from_slice(hash));
-    hex::encode(ret)
 }
