@@ -6,11 +6,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-casper-contract = { version = "1.4.3", default-features = false, features = ["test-support"] }
+casper-contract = { version = "3.0.0", default-features = false }
+casper-types = { version = "3.0.0", default-features = false }
 casper-engine-test-support = { version = "2.2.0", features = ["test-support"] }
 casper-execution-engine = "2.0.0"
-casper-types = "1.5.0"
-casper-hashing = "1.4.3"
+casper-hashing = "1.4.4"
 test-env = { path = "../utils/test-env" }
 contract-utils = { path = "../utils/contract-utils" }
 hex = "0.4.3"
@@ -18,6 +18,3 @@ hex = "0.4.3"
 base64 = { version = "0.13.0" }
 blake2 = { version = "0.9.0", default-features = false }
 once_cell = "1.17.2"
-
-[features]
-default = ["casper-contract/std", "casper-types/std", "casper-contract/test-support"]

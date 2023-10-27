@@ -71,7 +71,7 @@ checksum = "790b76807d64788758208757b0a17970bf756cb7c392f55b1a22021a34f95991"
 dependencies = [
  "casper-types",
  "hex_fmt",
-# "wee_alloc",
+ "wee_alloc",
 ]
 
 [[package]]
@@ -648,17 +648,17 @@ version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
-#[[package]]
-#name = "wee_alloc"
-#version = "0.4.5"
-#source = "registry+https://github.com/rust-lang/crates.io-index"
-#checksum = "dbb3b5a6b2bb17cb6ad44a2e68a43e8d2722c997da10e928665c72ec6c0a0b8e"
-#dependencies = [
-# "cfg-if 0.1.10",
-# "libc",
-# "memory_units",
-# "winapi",
-#]
+[[package]]
+name = "wee_alloc"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbb3b5a6b2bb17cb6ad44a2e68a43e8d2722c997da10e928665c72ec6c0a0b8e"
+dependencies = [
+ "cfg-if 0.1.10",
+ "libc",
+ "memory_units",
+ "winapi",
+]
 
 [[package]]
 name = "winapi"
